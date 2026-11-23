@@ -26,19 +26,19 @@ jobs:
 
       - name: Generate clean Android project structure
         run: |
-          mkdir -p temp_backup
-          cp pubspec.yaml temp_backup/
-          cp -r lib temp_backup/
-          flutter create --org com.zrg.arnfc --project-name ar_nfc_vault .
-          rm -rf lib pubspec.yaml
-          cp temp_backup/pubspec.yaml .
-          cp -r temp_backup/lib .
-          rm -rf temp_backup
+          flutter create --org com.zrg.arnfc --project-name ar_nfc_vault /tmp/clean_app
+          cp -r /tmp/clean_app/android .
+          cp -r /tmp/clean_app/test . 2>/dev/null || true
 
       - name: Inject Permissions and MinSDK
         run: |
-          sed -i 's/minSdk = flutter.minSdkVersion/minSdk = 21/g' android/app/build.gradle
-          sed -i 's/minSdkVersion flutter.minSdkVersion/minSdkVersion 21/g' android/app/build.gradle
+          if [ -f android/app/build.gradle ]; then
+            sed -i 's/minSdk = flutter.minSdkVersion/minSdk = 21/g' android/app/build.gradle
+            sed -i 's/minSdkVersion flutter.minSdkVersion/minSdkVersion 21/g' android/app/build.gradle
+          fi
+          if [ -f android/app/build.gradle.kts ]; then
+            sed -i 's/minSdk = flutter.minSdkVersion/minSdk = 21/g' android/app/build.gradle.kts
+          fi
           sed -i 's/<application/<uses-permission android:name="android.permission.CAMERA" \/>\n    <uses-permission android:name="android.permission.NFC" \/>\n    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" \/>\n    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" \/>\n    <application/' android/app/src/main/AndroidManifest.xml
 
       - name: Get dependencies
